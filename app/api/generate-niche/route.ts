@@ -28,7 +28,15 @@ export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return Response.json(
-      { error: "ANTHROPIC_API_KEY is not set in the server environment. Please add it in Vercel → Settings → Environment Variables and redeploy." },
+      { error: "Key missing entirely." },
+      { status: 500 }
+    );
+  }
+
+  const keyPreview = `length=${apiKey.length}, starts="${apiKey.slice(0, 10)}", ends="${apiKey.slice(-4)}"`;
+  if (!apiKey.startsWith("sk-ant-")) {
+    return Response.json(
+      { error: `Key format wrong: ${keyPreview}` },
       { status: 500 }
     );
   }
