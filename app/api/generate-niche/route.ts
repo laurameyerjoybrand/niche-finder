@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic();
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 const QUESTION_LABELS = [
   "Problems they were most reliably brought in corporate:",
