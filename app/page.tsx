@@ -525,7 +525,7 @@ function NicheProfileVisual({ answers }: { answers: string[] }) {
 
   return (
     <div className="ef-profile-visual">
-      <div className="ef-profile-eyebrow">Your Authority Shape</div>
+      <div className="ef-profile-eyebrow">Your Niche Positioning</div>
 
       <svg
         viewBox={`0 0 ${W} ${H}`}
