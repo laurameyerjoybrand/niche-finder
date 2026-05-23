@@ -96,8 +96,9 @@ Respond with only valid JSON — no markdown code blocks, no explanation, no ext
     return Response.json(result);
   } catch (err) {
     console.error("API route error:", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
     return Response.json(
-      { error: "Something went wrong. Please try again." },
+      { error: `Debug: ${message}` },
       { status: 500 }
     );
   }
