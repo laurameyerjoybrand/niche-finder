@@ -6,10 +6,18 @@ import { useState } from "react";
 
 type AppState = "landing" | "quiz" | "loading" | "result";
 
+interface QuestionOption {
+  value: string; // full text sent to Claude
+  label: string; // bold short label for display
+  sub: string;   // italic subtitle for display
+}
+
 interface Question {
   id: number;
-  question: string;
-  options: string[];
+  heading: string;       // uppercase part of the heading
+  headingItalic: string; // italic part of the heading
+  help: string;
+  options: QuestionOption[];
 }
 
 interface NicheResult {
@@ -23,65 +31,172 @@ interface NicheResult {
 const QUESTIONS: Question[] = [
   {
     id: 1,
-    question:
-      "In your corporate career, what problems did people most reliably bring to you?",
+    heading: "What did colleagues always",
+    headingItalic: "bring to you?",
+    help: "The problem you were known for solving before anyone even asked.",
     options: [
-      "Broken processes, systems, or operations that needed untangling",
-      "People dynamics — team conflicts, culture issues, or leadership struggles",
-      "Big decisions that needed strategic thinking and a clear outside perspective",
-      "Client or stakeholder relationships that were fraying or needed rebuilding",
-      "Growth challenges — scaling the business, driving revenue, or entering new markets",
+      {
+        value: "Broken processes, systems, or operations that needed untangling",
+        label: "Operations & process",
+        sub: "Untangling broken systems",
+      },
+      {
+        value: "People dynamics — team conflicts, culture issues, or leadership struggles",
+        label: "People & culture",
+        sub: "Conflicts, culture, leadership",
+      },
+      {
+        value: "Big decisions that needed strategic thinking and a clear outside perspective",
+        label: "Strategy & decisions",
+        sub: "Clear thinking under pressure",
+      },
+      {
+        value: "Client or stakeholder relationships that were fraying or needed rebuilding",
+        label: "Relationships",
+        sub: "Fraying ties, rebuilt trust",
+      },
+      {
+        value: "Growth challenges — scaling the business, driving revenue, or entering new markets",
+        label: "Growth & revenue",
+        sub: "Scale, pipeline, new markets",
+      },
     ],
   },
   {
     id: 2,
-    question:
-      "In most projects or meetings, you naturally became the person who...",
+    heading: "In every room, you were",
+    headingItalic: "the person who...",
+    help: "The role you fell into without trying.",
     options: [
-      "Diagnosed what was really wrong — not just the surface symptoms",
-      "Built the system or framework that made everything run more smoothly",
-      "Got the people in the room aligned and moving in the same direction",
-      "Asked the uncomfortable questions nobody else would ask",
-      "Translated high-level strategy into something teams could actually execute",
+      {
+        value: "Diagnosed what was really wrong — not just the surface symptoms",
+        label: "The Diagnostician",
+        sub: "Found the real problem",
+      },
+      {
+        value: "Built the system or framework that made everything run more smoothly",
+        label: "The Builder",
+        sub: "Systems that actually stuck",
+      },
+      {
+        value: "Got the people in the room aligned and moving in the same direction",
+        label: "The Aligner",
+        sub: "Moving teams forward together",
+      },
+      {
+        value: "Asked the uncomfortable questions nobody else would ask",
+        label: "The Truth-Teller",
+        sub: "Questions others avoided",
+      },
+      {
+        value: "Translated high-level strategy into something teams could actually execute",
+        label: "The Translator",
+        sub: "Strategy made actionable",
+      },
     ],
   },
   {
     id: 3,
-    question: "The result your work most consistently delivered was...",
+    heading: "Your work most reliably",
+    headingItalic: "delivered...",
+    help: "The outcome that followed you from job to job.",
     options: [
-      "Things ran faster, leaner, or with significantly less chaos",
-      "The right people ended up in the right roles doing the right work",
-      "A costly crisis was prevented or contained before it escalated",
-      "Revenue grew, deals closed, or clients stayed and spent more",
-      "Plans that actually got implemented — not just presented and filed away",
+      {
+        value: "Things ran faster, leaner, or with significantly less chaos",
+        label: "Speed & efficiency",
+        sub: "Less chaos, more output",
+      },
+      {
+        value: "The right people ended up in the right roles doing the right work",
+        label: "Right people, right seats",
+        sub: "Talent in its place",
+      },
+      {
+        value: "A costly crisis was prevented or contained before it escalated",
+        label: "Crisis prevention",
+        sub: "Stopped before it started",
+      },
+      {
+        value: "Revenue grew, deals closed, or clients stayed and spent more",
+        label: "Revenue & retention",
+        sub: "Deals closed, clients stayed",
+      },
+      {
+        value: "Plans that actually got implemented — not just presented and filed away",
+        label: "Execution",
+        sub: "Plans that actually happened",
+      },
     ],
   },
   {
     id: 4,
-    question: "If you could handpick your consulting clients, they would be...",
+    heading: "Your ideal consulting",
+    headingItalic: "client looks like...",
+    help: "The type of company that gets the most from working with you.",
     options: [
-      "Founders or CEOs who've outgrown their own ability to manage everything",
-      "Growing companies that need corporate-level thinking without a full-time hire",
-      "Leadership teams navigating a major transition, merger, or restructure",
-      "Profitable businesses that are operationally messy or quietly plateauing",
-      "Organizations where people problems are costing real money",
+      {
+        value: "Founders or CEOs who've outgrown their own ability to manage everything",
+        label: "Overwhelmed founders",
+        sub: "Outgrown their own capacity",
+      },
+      {
+        value: "Growing companies that need corporate-level thinking without a full-time hire",
+        label: "Growing companies",
+        sub: "Corporate thinking, no FTE",
+      },
+      {
+        value: "Leadership teams navigating a major transition, merger, or restructure",
+        label: "Teams in transition",
+        sub: "Mergers, pivots, restructures",
+      },
+      {
+        value: "Profitable businesses that are operationally messy or quietly plateauing",
+        label: "Messy mid-market",
+        sub: "Profitable but stuck",
+      },
+      {
+        value: "Organizations where people problems are costing real money",
+        label: "People-cost problems",
+        sub: "Culture issues eating margin",
+      },
     ],
   },
   {
     id: 5,
-    question:
-      "When you imagine your consulting work, you're most energized by...",
+    heading: "You're most energized",
+    headingItalic: "working this way...",
+    help: "The kind of engagement that leaves you feeling alive, not drained.",
     options: [
-      "Diagnosing the real problem and handing over a recommendation they can act on immediately",
-      "Building systems and processes they'll still be using long after you're gone",
-      "Coaching a leader one-on-one through a hard season or pivotal decision",
-      "Facilitating a team through a stuck point or a conversation they've been avoiding",
-      "Being the strategic advisor in the room — the thinking partner, not the implementer",
+      {
+        value: "Diagnosing the real problem and handing over a recommendation they can act on immediately",
+        label: "Diagnosis & advice",
+        sub: "Find it, fix it, move on",
+      },
+      {
+        value: "Building systems and processes they'll still be using long after you're gone",
+        label: "Building systems",
+        sub: "Infrastructure that outlasts you",
+      },
+      {
+        value: "Coaching a leader one-on-one through a hard season or pivotal decision",
+        label: "1:1 leadership coaching",
+        sub: "Hard seasons, big decisions",
+      },
+      {
+        value: "Facilitating a team through a stuck point or a conversation they've been avoiding",
+        label: "Team facilitation",
+        sub: "Unstuck, together",
+      },
+      {
+        value: "Being the strategic advisor in the room — the thinking partner, not the implementer",
+        label: "Strategic advisor",
+        sub: "The thinking partner",
+      },
     ],
   },
 ];
 
-// ─── Root Component ─────────────────────────────────────────────────────────────
+// ─── Root Component ────────────────────────────────────────────────────────────
 
 export default function NicheFinder() {
   const [appState, setAppState] = useState<AppState>("landing");
@@ -99,8 +214,19 @@ export default function NicheFinder() {
     setError(null);
   };
 
-  const handleSelectOption = (option: string) => {
-    setSelectedOption(option);
+  const handleSelectOption = (value: string) => {
+    setSelectedOption(value);
+  };
+
+  const handleBack = () => {
+    if (currentQuestion > 0) {
+      const prev = currentQuestion - 1;
+      setCurrentQuestion(prev);
+      setSelectedOption(answers[prev] ?? null);
+      setAnswers(answers.slice(0, prev));
+    } else {
+      setAppState("landing");
+    }
   };
 
   const handleNext = async () => {
@@ -123,7 +249,7 @@ export default function NicheFinder() {
 
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to generate niche");
+          throw new Error((err as { error?: string }).error || "Failed to generate niche");
         }
 
         const data: NicheResult = await response.json();
@@ -131,9 +257,7 @@ export default function NicheFinder() {
         setAppState("result");
       } catch (err) {
         setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong. Please try again."
+          err instanceof Error ? err.message : "Something went wrong. Please try again."
         );
         setAppState("quiz");
         setCurrentQuestion(QUESTIONS.length - 1);
@@ -153,24 +277,51 @@ export default function NicheFinder() {
   };
 
   return (
-    <main className="min-h-screen">
-      {appState === "landing" && <LandingView onStart={handleStart} />}
-      {appState === "quiz" && (
-        <QuizView
-          question={QUESTIONS[currentQuestion]}
-          questionNumber={currentQuestion + 1}
-          totalQuestions={QUESTIONS.length}
-          selectedOption={selectedOption}
-          onSelectOption={handleSelectOption}
-          onNext={handleNext}
-          error={error}
-        />
-      )}
-      {appState === "loading" && <LoadingView />}
-      {appState === "result" && result && (
-        <ResultView result={result} onRestart={handleRestart} />
-      )}
-    </main>
+    <div className="ef-page">
+      <header className="ef-top">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-plum.png" alt="Expert Freedom" style={{ height: 28, width: "auto" }} />
+      </header>
+
+      <main className="ef-stage" key={appState + currentQuestion}>
+        {appState === "landing" && <LandingView onStart={handleStart} />}
+        {appState === "quiz" && (
+          <QuizView
+            question={QUESTIONS[currentQuestion]}
+            questionIndex={currentQuestion}
+            totalQuestions={QUESTIONS.length}
+            selectedOption={selectedOption}
+            onSelectOption={handleSelectOption}
+            onNext={handleNext}
+            onBack={handleBack}
+            error={error}
+          />
+        )}
+        {appState === "loading" && <LoadingView />}
+        {appState === "result" && result && (
+          <ResultView result={result} onRestart={handleRestart} />
+        )}
+      </main>
+
+      <footer className="ef-foot">
+        <div className="ef-foot-inner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-plum.png" alt="Expert Freedom" style={{ height: 22, width: "auto" }} />
+          <nav className="ef-foot-links">
+            <a href="https://joybrandcreative.com/privacy-policy">Privacy</a>
+            <a href="https://joybrandcreative.com/terms">Terms</a>
+            <a href="mailto:hello@joybrandcreative.com">Contact</a>
+          </nav>
+        </div>
+        <div className="ef-foot-disclaimer">
+          <strong style={{ color: "var(--plum)" }}>IMPORTANT — Earnings Disclaimer.</strong>{" "}
+          All testimonials are from real clients; results are not typical. Your results depend on
+          your skills, experience, motivation, and other factors. Joybrand Creative is a marketing
+          education company. We do not sell a business opportunity or &ldquo;get rich quick&rdquo;
+          system. We make no earnings claims. &copy; 2026 Joybrand Creative.
+        </div>
+      </footer>
+    </div>
   );
 }
 
@@ -178,47 +329,37 @@ export default function NicheFinder() {
 
 function LandingView({ onStart }: { onStart: () => void }) {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
-      style={{ backgroundColor: "#1C3A6E" }}
-    >
-      <div className="max-w-xl w-full text-center">
-        {/* Label */}
-        <p
-          className="text-xs font-semibold tracking-widest uppercase mb-8"
-          style={{ color: "#C9A84C" }}
-        >
-          Free Niche Finder
-        </p>
-
-        {/* Headline */}
-        <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight mb-5">
-          You already have a niche.
-          <br />
-          You just can&apos;t see it yet.
-        </h1>
-
-        {/* Sub-headline */}
-        <p className="text-lg md:text-xl leading-relaxed mb-10 max-w-md mx-auto" style={{ color: "rgba(255,255,255,0.72)" }}>
-          Answer 5 questions about what you&apos;ve spent 20 years doing — and
-          we&apos;ll name the consulting focus that&apos;s been hiding in plain
-          sight.
-        </p>
-
-        {/* CTA */}
-        <button
-          onClick={onStart}
-          className="text-white font-semibold text-lg px-10 py-4 rounded-lg transition-all duration-200 inline-flex items-center gap-2 hover:opacity-90 active:scale-95"
-          style={{ backgroundColor: "#C9A84C" }}
-        >
-          Show Me My Niche
-          <span>→</span>
+    <div className="ef-stage-inner">
+      <div className="ef-eyebrow">Free Niche Finder</div>
+      <h1 className="ef-hero-h1">
+        <span className="row">You&apos;ve been waiting</span>
+        <span className="emph">to know your niche.</span>
+      </h1>
+      <p className="ef-hook">That wait is costing you clients.</p>
+      <p className="ef-body-copy">
+        Answer <strong>5 questions</strong> about what you&apos;ve spent 20 years doing — and
+        we&apos;ll name the consulting focus that&apos;s been hiding in plain sight.
+      </p>
+      <div className="ef-cta-wrap">
+        <button className="ef-btn ef-btn-primary ef-btn-arrow" onClick={onStart}>
+          Find My Niche Now
         </button>
-
-        {/* Trust line */}
-        <p className="text-sm mt-6" style={{ color: "rgba(255,255,255,0.38)" }}>
-          Takes 3 minutes · No email required
-        </p>
+      </div>
+      <div className="ef-stat-row">
+        <div className="ef-stat">
+          <div className="n">5</div>
+          <div className="l">Questions</div>
+        </div>
+        <div className="ef-stat">
+          <div className="n">
+            3<span className="unit">min</span>
+          </div>
+          <div className="l">To complete</div>
+        </div>
+        <div className="ef-stat">
+          <div className="n">∞</div>
+          <div className="l">Clarity</div>
+        </div>
       </div>
     </div>
   );
@@ -228,106 +369,91 @@ function LandingView({ onStart }: { onStart: () => void }) {
 
 function QuizView({
   question,
-  questionNumber,
+  questionIndex,
   totalQuestions,
   selectedOption,
   onSelectOption,
   onNext,
+  onBack,
   error,
 }: {
   question: Question;
-  questionNumber: number;
+  questionIndex: number;
   totalQuestions: number;
   selectedOption: string | null;
-  onSelectOption: (option: string) => void;
+  onSelectOption: (value: string) => void;
   onNext: () => void;
+  onBack: () => void;
   error: string | null;
 }) {
-  const progress = (questionNumber / totalQuestions) * 100;
+  const isLast = questionIndex === totalQuestions - 1;
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
-      style={{ backgroundColor: "#F8F6F1" }}
-    >
-      <div className="max-w-xl w-full">
-        {/* Progress bar */}
-        <div className="mb-10">
-          <div className="flex justify-between text-sm mb-2" style={{ color: "#9ca3af" }}>
-            <span>Question {questionNumber} of {totalQuestions}</span>
-            <span>{Math.round(progress)}% complete</span>
+    <div className="ef-stage-inner">
+      <div className="ef-quiz-card">
+        {/* Progress */}
+        <div className="ef-progress">
+          <div className="bars">
+            {Array.from({ length: totalQuestions }).map((_, i) => (
+              <div
+                key={i}
+                className={`ef-bar${i < questionIndex ? " done" : i === questionIndex ? " current" : ""}`}
+              />
+            ))}
           </div>
-          <div className="w-full rounded-full h-1.5" style={{ backgroundColor: "#e5e7eb" }}>
-            <div
-              className="h-1.5 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%`, backgroundColor: "#C9A84C" }}
-            />
+          <div className="ef-step-label">
+            {String(questionIndex + 1).padStart(2, "0")} /{" "}
+            {String(totalQuestions).padStart(2, "0")}
           </div>
         </div>
 
         {/* Question */}
-        <h2
-          className="text-2xl md:text-3xl font-bold leading-snug mb-8"
-          style={{ color: "#1C3A6E" }}
-        >
-          {question.question}
+        <span className="ef-q-num">Question {questionIndex + 1}</span>
+        <h2 className="ef-q-title">
+          {question.heading} <em>{question.headingItalic}</em>
         </h2>
+        <p className="ef-q-help">{question.help}</p>
 
         {/* Options */}
-        <div className="space-y-3 mb-8">
-          {question.options.map((option) => {
-            const isSelected = selectedOption === option;
+        <div className="ef-options">
+          {question.options.map((opt) => {
+            const isSelected = selectedOption === opt.value;
             return (
               <button
-                key={option}
-                onClick={() => onSelectOption(option)}
-                className="w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-150 text-base leading-snug"
-                style={{
-                  backgroundColor: "#ffffff",
-                  borderColor: isSelected ? "#C9A84C" : "#e5e7eb",
-                  color: isSelected ? "#1C3A6E" : "#374151",
-                  fontWeight: isSelected ? 600 : 400,
-                  boxShadow: isSelected
-                    ? "0 2px 8px rgba(201,168,76,0.2)"
-                    : "none",
-                }}
+                key={opt.value}
+                className={`ef-option${isSelected ? " selected" : ""}`}
+                onClick={() => onSelectOption(opt.value)}
+                type="button"
               >
-                <span
-                  className="inline-block mr-2 text-sm"
-                  style={{
-                    color: "#C9A84C",
-                    opacity: isSelected ? 1 : 0,
-                    transition: "opacity 0.15s",
-                  }}
-                >
-                  ✓
+                <span className="ef-dot" />
+                <span className="ef-lbl">
+                  <b>{opt.label}</b>
+                  <span>{opt.sub}</span>
                 </span>
-                {option}
               </button>
             );
           })}
         </div>
 
         {/* Error */}
-        {error && (
-          <p className="text-red-500 text-sm mb-4">{error}</p>
-        )}
+        {error && <p className="ef-error">{error}</p>}
 
-        {/* Next */}
-        <button
-          onClick={onNext}
-          disabled={!selectedOption}
-          className="w-full text-white font-semibold text-lg px-8 py-4 rounded-xl transition-all duration-200"
-          style={{
-            backgroundColor: selectedOption ? "#1C3A6E" : "#1C3A6E",
-            opacity: selectedOption ? 1 : 0.35,
-            cursor: selectedOption ? "pointer" : "not-allowed",
-          }}
-        >
-          {questionNumber === totalQuestions
-            ? "Find My Niche →"
-            : "Next Question →"}
-        </button>
+        {/* Nav */}
+        <div className="ef-quiz-nav">
+          <button className="ef-btn ef-btn-ghost" onClick={onBack} type="button">
+            ← Back
+          </button>
+          <div className="right">
+            <button
+              className={`ef-btn ef-btn-primary ef-btn-arrow${!selectedOption ? " ef-btn-disabled" : ""}`}
+              onClick={onNext}
+              type="button"
+              aria-disabled={!selectedOption}
+            >
+              {isLast ? "See My Niche" : "Next"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -337,22 +463,11 @@ function QuizView({
 
 function LoadingView() {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ backgroundColor: "#1C3A6E" }}
-    >
-      <div className="text-center">
-        {/* Spinner */}
-        <div
-          className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin mx-auto mb-6"
-          style={{ borderColor: "#C9A84C", borderTopColor: "transparent" }}
-        />
-        <p className="text-white text-xl font-semibold mb-2">
-          Finding your niche...
-        </p>
-        <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
-          Analyzing 20 years of expertise
-        </p>
+    <div className="ef-stage-inner">
+      <div className="ef-loading">
+        <div className="ef-spinner" />
+        <h2 className="ef-loading-title">Finding your niche</h2>
+        <p className="ef-loading-sub">Analyzing 20 years of expertise&hellip;</p>
       </div>
     </div>
   );
@@ -368,110 +483,73 @@ function ResultView({
   onRestart: () => void;
 }) {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-start px-6 py-16"
-      style={{ backgroundColor: "#F8F6F1" }}
-    >
-      <div className="max-w-xl w-full">
-        {/* Label */}
-        <p
-          className="text-xs font-semibold tracking-widest uppercase mb-6 text-center"
-          style={{ color: "#C9A84C" }}
-        >
-          Your Consulting Niche
+    <div className="ef-stage-inner">
+      <div className="ef-results">
+        <div className="ef-res-eyebrow">Your Consulting Niche</div>
+        <h1 className="ef-res-h1">
+          Here&apos;s your <em>direction.</em>
+        </h1>
+        <p className="ef-res-pitch">
+          Built from what you already know — not invented from scratch.
         </p>
 
-        {/* Niche Statement */}
-        <div
-          className="rounded-2xl p-8 mb-5 text-center"
-          style={{ backgroundColor: "#1C3A6E" }}
-        >
-          <p
-            className="text-xs uppercase tracking-widest mb-3 font-medium"
-            style={{ color: "rgba(255,255,255,0.5)" }}
-          >
-            Your Positioning
-          </p>
-          <h2 className="text-white text-2xl md:text-3xl font-bold leading-snug">
-            {result.nicheStatement}
-          </h2>
-        </div>
+        <div className="ef-res-card">
+          <span className="ef-card-label">Your Positioning</span>
+          <div className="ef-blockquote">{result.nicheStatement}</div>
 
-        {/* Ideal Client */}
-        <div
-          className="rounded-2xl p-6 mb-4 border"
-          style={{ backgroundColor: "#ffffff", borderColor: "#e5e7eb" }}
-        >
-          <p
-            className="text-xs font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "#C9A84C" }}
-          >
-            Your Ideal Client
-          </p>
-          <p className="text-base leading-relaxed" style={{ color: "#374151" }}>
-            {result.idealClient}
-          </p>
-        </div>
+          <h4>Your Ideal Client</h4>
+          <p className="ef-client-text">{result.idealClient}</p>
 
-        {/* Conversation Starter */}
-        <div
-          className="rounded-2xl p-6 mb-8 border"
-          style={{ backgroundColor: "#ffffff", borderColor: "#e5e7eb" }}
-        >
-          <p
-            className="text-xs font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "#C9A84C" }}
-          >
-            Say This to Someone This Week
-          </p>
-          <p
-            className="text-base font-medium leading-relaxed italic"
-            style={{ color: "#1C3A6E" }}
-          >
+          <h4>Say This to Someone This Week</h4>
+          <div className="ef-blockquote">
             &ldquo;{result.conversationStarter}&rdquo;
-          </p>
+          </div>
+
+          <h4>Your Next 3 Moves</h4>
+          <ol className="ef-steps">
+            <li>
+              <span className="ef-step-num">1</span>
+              <span>
+                <b>Refine the language.</b> Read your positioning out loud. Replace anything that
+                doesn&apos;t sound like you.
+              </span>
+            </li>
+            <li>
+              <span className="ef-step-num">2</span>
+              <span>
+                <b>List your &ldquo;Warm 50.&rdquo;</b> Past colleagues, clients, and contacts who
+                already trust you in this space.
+              </span>
+            </li>
+            <li>
+              <span className="ef-step-num">3</span>
+              <span>
+                <b>Book one conversation this week.</b> Not a pitch — a question. Test this niche
+                on a real human.
+              </span>
+            </li>
+          </ol>
         </div>
 
-        {/* Expert Freedom CTA */}
-        <div
-          className="rounded-2xl p-8 text-center mb-6"
-          style={{ backgroundColor: "#1C3A6E" }}
-        >
-          <h3 className="text-white text-xl font-bold mb-2">
-            Ready to turn this into your first client?
-          </h3>
-          <p
-            className="text-sm mb-6 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.65)" }}
-          >
-            Expert Freedom gives you the system to land your first $3–5K/month
-            advisory client in 30 days — using the niche you just found.
+        <div className="ef-res-cta">
+          <div className="row">
+            <a
+              href="https://expertfreedom.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ef-btn ef-btn-primary ef-btn-arrow"
+            >
+              Turn This Into Your First Client
+            </a>
+            <button className="ef-btn ef-btn-ghost" onClick={onRestart} type="button">
+              Try a different angle
+            </button>
+          </div>
+          <p className="micro">
+            Copy your positioning somewhere safe — you&apos;ll come back to it as your practice
+            grows.
           </p>
-          <a
-            href="https://expertfreedom.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white font-semibold px-8 py-4 rounded-xl inline-block transition-all duration-200 hover:opacity-90"
-            style={{ backgroundColor: "#C9A84C" }}
-          >
-            Learn About Expert Freedom →
-          </a>
         </div>
-
-        {/* Restart */}
-        <button
-          onClick={onRestart}
-          className="w-full py-3 text-sm transition-colors duration-150"
-          style={{ color: "#9ca3af" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "#6b7280")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "#9ca3af")
-          }
-        >
-          ← Start over
-        </button>
       </div>
     </div>
   );
