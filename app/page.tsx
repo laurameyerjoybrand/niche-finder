@@ -337,8 +337,7 @@ function LandingView({ onStart }: { onStart: () => void }) {
       </h1>
       <p className="ef-hook">That wait is costing you clients.</p>
       <p className="ef-body-copy">
-        Answer <strong>5 questions</strong> about what you&apos;ve spent 20 years doing — and
-        we&apos;ll name the consulting focus that&apos;s been hiding in plain sight.
+        Answer <strong>5 questions</strong>{" "}about what you&apos;ve spent 20 years doing — and we&apos;ll name the consulting focus that&apos;s been hiding in plain sight.
       </p>
       <div className="ef-cta-wrap">
         <button className="ef-btn ef-btn-primary ef-btn-arrow" onClick={onStart}>
