@@ -1,9 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
 const QUESTION_LABELS = [
   "Problems they were most reliably brought in corporate:",
   "Their natural role in teams and projects:",
@@ -29,6 +25,16 @@ Rules:
 - The niche statement should make someone exhale and say "that's exactly it"`;
 
 export async function POST(request: Request) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return Response.json(
+      { error: "ANTHROPIC_API_KEY is not set in the server environment. Please add it in Vercel → Settings → Environment Variables and redeploy." },
+      { status: 500 }
+    );
+  }
+
+  const client = new Anthropic({ apiKey });
+
   try {
     const body = await request.json();
     const { answers } = body as { answers: string[] };
