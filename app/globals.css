@@ -604,6 +604,64 @@ img { display: block; max-width: 100%; }
   color: var(--lilac);
 }
 
+/* ─── Niche Profile Visual ───────────────────────────────────────────────── */
+.ef-profile-visual {
+  background: var(--plum);
+  border-radius: 14px;
+  padding: 36px 40px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+.ef-profile-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.ef-archetype-name {
+  font-family: 'Fjalla One', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: clamp(30px, 5vw, 52px);
+  color: var(--champ);
+  line-height: 1.0;
+  margin-bottom: 6px;
+}
+.ef-archetype-sub {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.42);
+  margin-bottom: 28px;
+}
+.ef-profile-rule {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 auto 24px;
+}
+.ef-trait-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.ef-trait-pill {
+  padding: 7px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+}
+
 @media (max-width: 640px) {
   .ef-quiz-nav { flex-direction: column-reverse; align-items: stretch; }
   .ef-quiz-nav .right { width: 100%; }

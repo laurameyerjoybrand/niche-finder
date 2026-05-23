@@ -299,7 +299,7 @@ export default function NicheFinder() {
         )}
         {appState === "loading" && <LoadingView />}
         {appState === "result" && result && (
-          <ResultView result={result} onRestart={handleRestart} />
+          <ResultView result={result} answers={answers} onRestart={handleRestart} />
         )}
       </main>
 
@@ -474,11 +474,35 @@ function LoadingView() {
 
 // ─── Result ────────────────────────────────────────────────────────────────────
 
+function NicheProfileVisual({ answers }: { answers: string[] }) {
+  const findOption = (qIndex: number, value: string) =>
+    QUESTIONS[qIndex].options.find((o) => o.value === value);
+
+  const archetypeOpt = findOption(1, answers[1]);
+  const traits = [0, 2, 3, 4].map((qi) => findOption(qi, answers[qi])?.label ?? "");
+
+  return (
+    <div className="ef-profile-visual">
+      <div className="ef-profile-eyebrow">Your Consulting Archetype</div>
+      <div className="ef-archetype-name">{archetypeOpt?.label ?? ""}</div>
+      <div className="ef-archetype-sub">{archetypeOpt?.sub ?? ""}</div>
+      <div className="ef-profile-rule" />
+      <div className="ef-trait-pills">
+        {traits.map((trait, i) => (
+          <div key={i} className="ef-trait-pill">{trait}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ResultView({
   result,
+  answers,
   onRestart,
 }: {
   result: NicheResult;
+  answers: string[];
   onRestart: () => void;
 }) {
   return (
@@ -491,6 +515,8 @@ function ResultView({
         <p className="ef-res-pitch">
           Built from what you already know — not invented from scratch.
         </p>
+
+        <NicheProfileVisual answers={answers} />
 
         <div className="ef-res-card">
           <span className="ef-card-label">Your Positioning</span>
