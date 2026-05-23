@@ -26,17 +26,14 @@ Rules:
 
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
+  const visibleKeys = Object.keys(process.env)
+    .filter(k => !k.toLowerCase().includes("key") && !k.toLowerCase().includes("secret") && !k.toLowerCase().includes("token"))
+    .sort()
+    .join(", ");
+
   if (!apiKey) {
     return Response.json(
-      { error: "Key missing entirely." },
-      { status: 500 }
-    );
-  }
-
-  const keyPreview = `length=${apiKey.length}, starts="${apiKey.slice(0, 10)}", ends="${apiKey.slice(-4)}"`;
-  if (!apiKey.startsWith("sk-ant-")) {
-    return Response.json(
-      { error: `Key format wrong: ${keyPreview}` },
+      { error: `Key missing. Visible env vars: ${visibleKeys}` },
       { status: 500 }
     );
   }
