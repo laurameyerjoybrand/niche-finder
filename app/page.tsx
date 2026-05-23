@@ -474,22 +474,149 @@ function LoadingView() {
 
 // ─── Result ────────────────────────────────────────────────────────────────────
 
-function NicheProfileVisual({ answers }: { answers: string[] }) {
-  const findOption = (qIndex: number, value: string) =>
-    QUESTIONS[qIndex].options.find((o) => o.value === value);
+// Short axis label for each quiz dimension
+const RADAR_AXIS_LABELS = ["Problem", "Archetype", "Outcome", "Client", "Style"] as const;
 
-  const archetypeOpt = findOption(1, answers[1]);
-  const traits = [0, 2, 3, 4].map((qi) => findOption(qi, answers[qi])?.label ?? "");
+// Pre-assigned radial values (0–1) per option per question.
+// Higher = more differentiated/distinctive on that axis.
+const RADAR_AXIS_VALUES: readonly (readonly number[])[] = [
+  [0.60, 0.75, 0.85, 0.65, 0.90], // Q0: problem area
+  [0.90, 0.70, 0.75, 0.85, 0.80], // Q1: archetype
+  [0.70, 0.80, 0.65, 0.95, 0.85], // Q2: outcome
+  [0.85, 0.70, 0.75, 0.90, 0.80], // Q3: client type
+  [0.80, 0.70, 0.90, 0.75, 0.95], // Q4: work style
+] as const;
+
+function NicheProfileVisual({ answers }: { answers: string[] }) {
+  const N = 5;
+  const W = 440, H = 385;
+  const cx = 220, cy = 200;
+  const maxR = 120;
+  const LEVELS = 4;
+  const LABEL_R = maxR + 36;
+
+  // Angle for axis i, starting at top (–90°) going clockwise
+  const ang = (i: number) => (i / N) * 2 * Math.PI - Math.PI / 2;
+
+  const ptAt = (i: number, r: number) => ({
+    x: cx + r * Math.cos(ang(i)),
+    y: cy + r * Math.sin(ang(i)),
+  });
+
+  const ptsStr = (pts: { x: number; y: number }[]) =>
+    pts.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+
+  // Which option was selected per question (index 0–4)
+  const optionIndices = answers.map((answer, qi) =>
+    QUESTIONS[qi].options.findIndex((o) => o.value === answer)
+  );
+
+  // Radial value for each axis based on selection
+  const axisVals = optionIndices.map((idx, qi) =>
+    idx >= 0 && idx < RADAR_AXIS_VALUES[qi].length
+      ? RADAR_AXIS_VALUES[qi][idx]
+      : 0.6
+  );
+
+  const ringAt = (t: number) =>
+    ptsStr(Array.from({ length: N }, (_, i) => ptAt(i, t * maxR)));
+
+  const userShape = ptsStr(axisVals.map((v, i) => ptAt(i, v * maxR)));
 
   return (
     <div className="ef-profile-visual">
-      <div className="ef-profile-eyebrow">Your Consulting Archetype</div>
-      <div className="ef-archetype-name">{archetypeOpt?.label ?? ""}</div>
-      <div className="ef-archetype-sub">{archetypeOpt?.sub ?? ""}</div>
-      <div className="ef-profile-rule" />
-      <div className="ef-trait-pills">
-        {traits.map((trait, i) => (
-          <div key={i} className="ef-trait-pill">{trait}</div>
+      <div className="ef-profile-eyebrow">Your Authority Shape</div>
+
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        style={{ width: "100%", maxWidth: W, display: "block", margin: "0 auto" }}
+        aria-hidden="true"
+      >
+        {/* Grid rings */}
+        {Array.from({ length: LEVELS }, (_, li) => (
+          <polygon
+            key={`ring-${li}`}
+            points={ringAt((li + 1) / LEVELS)}
+            fill="none"
+            stroke="rgba(54,31,54,0.09)"
+            strokeWidth={li === LEVELS - 1 ? 1.5 : 1}
+          />
+        ))}
+
+        {/* Axis spokes */}
+        {Array.from({ length: N }, (_, i) => {
+          const tip = ptAt(i, maxR);
+          return (
+            <line
+              key={`ax-${i}`}
+              x1={cx} y1={cy}
+              x2={tip.x.toFixed(2)} y2={tip.y.toFixed(2)}
+              stroke="rgba(54,31,54,0.09)"
+              strokeWidth={1}
+            />
+          );
+        })}
+
+        {/* User's authority polygon */}
+        <polygon
+          points={userShape}
+          fill="rgba(184,153,104,0.18)"
+          stroke="#B89968"
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+
+        {/* Champagne dot at each axis's selected point */}
+        {axisVals.map((v, i) => {
+          const p = ptAt(i, v * maxR);
+          return (
+            <circle
+              key={`dot-${i}`}
+              cx={p.x.toFixed(2)}
+              cy={p.y.toFixed(2)}
+              r={5}
+              fill="#B89968"
+            />
+          );
+        })}
+
+        {/* Center mark */}
+        <circle cx={cx} cy={cy} r={3} fill="rgba(54,31,54,0.14)" />
+
+        {/* Axis labels */}
+        {Array.from({ length: N }, (_, i) => {
+          const lp = ptAt(i, LABEL_R);
+          const xOff = lp.x - cx;
+          const anchor =
+            Math.abs(xOff) < 14 ? "middle" : xOff < 0 ? "end" : "start";
+          return (
+            <text
+              key={`lbl-${i}`}
+              x={lp.x.toFixed(2)}
+              y={lp.y.toFixed(2)}
+              textAnchor={anchor}
+              dominantBaseline="middle"
+              fontFamily="Montserrat, sans-serif"
+              fontSize={8}
+              fontWeight={700}
+              letterSpacing={1.8}
+              fill="rgba(54,31,54,0.42)"
+            >
+              {RADAR_AXIS_LABELS[i].toUpperCase()}
+            </text>
+          );
+        })}
+      </svg>
+
+      {/* Legend: dimension → selected value */}
+      <div className="ef-radar-legend">
+        {optionIndices.map((idx, qi) => (
+          <div key={qi} className="ef-legend-item">
+            <span className="ef-legend-axis">{RADAR_AXIS_LABELS[qi]}</span>
+            <span className="ef-legend-val">
+              {idx >= 0 ? QUESTIONS[qi].options[idx].label : "—"}
+            </span>
+          </div>
         ))}
       </div>
     </div>

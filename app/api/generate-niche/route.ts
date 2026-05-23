@@ -26,14 +26,11 @@ Rules:
 
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const visibleKeys = Object.keys(process.env)
-    .filter(k => !k.toLowerCase().includes("key") && !k.toLowerCase().includes("secret") && !k.toLowerCase().includes("token"))
-    .sort()
-    .join(", ");
 
   if (!apiKey) {
+    console.error("ANTHROPIC_API_KEY is not set in the environment.");
     return Response.json(
-      { error: `Key missing. Visible env vars: ${visibleKeys}` },
+      { error: "Server configuration error. Please try again later." },
       { status: 500 }
     );
   }
@@ -107,9 +104,8 @@ Respond with only valid JSON — no markdown code blocks, no explanation, no ext
     return Response.json(result);
   } catch (err) {
     console.error("API route error:", err);
-    const message = err instanceof Error ? err.message : "Unknown error";
     return Response.json(
-      { error: `Debug: ${message}` },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }
