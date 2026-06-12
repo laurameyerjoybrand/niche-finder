@@ -636,10 +636,10 @@ function ResultView({
   onRestart: () => void;
   utms: UtmParams;
 }) {
-  const ctaUrl = appendUtms(        // ← ADD THIS HERE
-    "https://go.getexpertfreedom.com/apply",
-    utms
-  );
+  const handleCta = () => {
+    const url = appendUtms("https://go.getexpertfreedom.com/apply");
+    window.open(url, "_blank");
+  };
   return (
     <div className="ef-stage-inner">
       <div className="ef-results">
@@ -693,14 +693,12 @@ function ResultView({
 
         <div className="ef-res-cta">
           <div className="row">
-            <a
-              href={ctaUrl}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="ef-btn ef-btn-primary ef-btn-arrow"
->
-  Turn This Into Your First Client
-</a>
+            <button
+      onClick={handleCta}
+      className="ef-btn ef-btn-primary ef-btn-arrow"
+    >
+      Turn This Into Your First Client
+    </button>
             <button className="ef-btn ef-btn-ghost" onClick={onRestart} type="button">
               Try a different angle
             </button>
