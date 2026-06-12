@@ -629,11 +629,17 @@ function ResultView({
   result,
   answers,
   onRestart,
+  utms,
 }: {
   result: NicheResult;
   answers: string[];
   onRestart: () => void;
+  utms: UtmParams;
 }) {
+  const ctaUrl = appendUtms(        // ← ADD THIS HERE
+    "https://go.getexpertfreedom.com/apply",
+    utms
+  );
   return (
     <div className="ef-stage-inner">
       <div className="ef-results">
@@ -688,13 +694,13 @@ function ResultView({
         <div className="ef-res-cta">
           <div className="row">
             <a
-              href="https://go.getexpertfreedom.com/apply"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ef-btn ef-btn-primary ef-btn-arrow"
-            >
-              Turn This Into Your First Client
-            </a>
+              href={ctaUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="ef-btn ef-btn-primary ef-btn-arrow"
+>
+  Turn This Into Your First Client
+</a>
             <button className="ef-btn ef-btn-ghost" onClick={onRestart} type="button">
               Try a different angle
             </button>
