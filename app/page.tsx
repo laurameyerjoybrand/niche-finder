@@ -637,7 +637,7 @@ function ResultView({
   utms: UtmParams;
 }) {
   const ctaUrl = appendUtms(        // ← ADD THIS HERE
-    "https://go.getexpertfreedom.com/apply",
+    "https://go.getexpertfreedom.com/apply-page",
     utms
   );
   return (
