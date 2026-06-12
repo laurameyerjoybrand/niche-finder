@@ -1,11 +1,15 @@
-import { UtmParams } from "@/hooks/useUtmParams";
-
-export function appendUtms(url: string, utms: UtmParams): string {
-  if (!Object.keys(utms).length) return url;
-  const base = new URL(url, "https://placeholder.com");
-  Object.entries(utms).forEach(([k, v]) => {
-    if (v) base.searchParams.set(k, v);
+export function appendUtms(url: string): string {
+  if (typeof window === "undefined") return url;
+  
+  const currentParams = new URLSearchParams(window.location.search);
+  const utmKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+  
+  const base = new URL(url);
+  
+  utmKeys.forEach((key) => {
+    const val = currentParams.get(key);
+    if (val) base.searchParams.set(key, val);
   });
-  // Return just pathname+search if relative, full URL if absolute
-  return url.startsWith("http") ? base.toString() : base.pathname + base.search;
+  
+  return base.toString();
 }
