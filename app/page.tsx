@@ -686,7 +686,7 @@ function ResultView({
         <div className="ef-res-cta">
           <div className="row">
             <a
-              href="https://expertfreedom.com"
+              href="https://go.getexpertfreedom.com/apply"
               target="_blank"
               rel="noopener noreferrer"
               className="ef-btn ef-btn-primary ef-btn-arrow"
