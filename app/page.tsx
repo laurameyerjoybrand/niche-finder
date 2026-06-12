@@ -1,5 +1,6 @@
 "use client";
-
+import { useUtmParams } from "@/hooks/useUtmParams";
+import { appendUtms } from "@/lib/appendUtms";
 import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -199,6 +200,7 @@ const QUESTIONS: Question[] = [
 // ─── Root Component ────────────────────────────────────────────────────────────
 
 export default function NicheFinder() {
+  const utms = useUtmParams();
   const [appState, setAppState] = useState<AppState>("landing");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -299,8 +301,8 @@ export default function NicheFinder() {
         )}
         {appState === "loading" && <LoadingView />}
         {appState === "result" && result && (
-          <ResultView result={result} answers={answers} onRestart={handleRestart} />
-        )}
+  <ResultView result={result} answers={answers} onRestart={handleRestart} utms={utms} />
+)}
       </main>
 
       <footer className="ef-foot">
