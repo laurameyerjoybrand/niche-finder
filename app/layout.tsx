@@ -27,7 +27,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+       <body>
+        <Suspense fallback={null}>
+          {children}
+        </Suspense>
+      </body>
     </html>
   );
 }
