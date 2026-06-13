@@ -1,7 +1,7 @@
 "use client";
 import { useUtmParams } from "@/hooks/useUtmParams";
 import { appendUtms } from "@/lib/appendUtms";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -625,21 +625,56 @@ function NicheProfileVisual({ answers }: { answers: string[] }) {
   );
 }
 
+const efInputStyle: CSSProperties = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 8,
+  border: "1px solid rgba(54,31,54,0.18)",
+  fontSize: 16,
+  fontFamily: "inherit",
+  color: "#361F36",
+  background: "#fff",
+  outline: "none",
+};
+
 function ResultView({
   result,
   answers,
   onRestart,
-  utms,
 }: {
   result: NicheResult;
   answers: string[];
   onRestart: () => void;
-  utms: UtmParams;
 }) {
-  const handleCta = () => {
-    const url = appendUtms("https://go.getexpertfreedom.com/apply");
-    window.open(url, "_blank");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const canSend =
+    name.trim().length > 0 && emailValid && status !== "sending" && status !== "sent";
+
+  const handleSend = async () => {
+    if (!canSend) return;
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/send-results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          result,
+          answers,
+        }),
+      });
+      if (!res.ok) throw new Error("send failed");
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
   };
+
   return (
     <div className="ef-stage-inner">
       <div className="ef-results">
@@ -691,14 +726,66 @@ function ResultView({
           </ol>
         </div>
 
+        {/* ─── Email My Results ─────────────────────────────────────────── */}
+        <div className="ef-res-card" style={{ marginTop: 16 }}>
+          <span className="ef-card-label">Email My Results</span>
+          {status === "sent" ? (
+            <p className="ef-client-text">
+              Sent. Check your inbox for your niche. It can take a minute to arrive.
+            </p>
+          ) : (
+            <>
+              <p className="ef-client-text">
+                Get your positioning, ideal client, and conversation starter sent to your inbox so
+                you can come back to it.
+              </p>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}
+              >
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={efInputStyle}
+                  aria-label="Your name"
+                />
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={efInputStyle}
+                  aria-label="Your email"
+                />
+                <button
+                  className={`ef-btn ef-btn-primary ef-btn-arrow${
+                    !canSend ? " ef-btn-disabled" : ""
+                  }`}
+                  onClick={handleSend}
+                  type="button"
+                  aria-disabled={!canSend}
+                >
+                  {status === "sending" ? "Sending…" : "Email My Results"}
+                </button>
+                {status === "error" && (
+                  <p className="ef-error">That didn&apos;t go through. Please try again.</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="ef-res-cta">
           <div className="row">
-            <button
-      onClick={handleCta}
-      className="ef-btn ef-btn-primary ef-btn-arrow"
-    >
-      Turn This Into Your First Client
-    </button>
+            <a
+              href="https://expertfreedom.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ef-btn ef-btn-primary ef-btn-arrow"
+            >
+              Turn This Into Your First Client
+            </a>
             <button className="ef-btn ef-btn-ghost" onClick={onRestart} type="button">
               Try a different angle
             </button>
