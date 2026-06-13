@@ -1,5 +1,5 @@
 "use client";
-import { useUtmParams } from "@/hooks/useUtmParams";
+import { useUtmParams, type UtmParams } from "@/hooks/useUtmParams";
 import { appendUtms } from "@/lib/appendUtms";
 import { useState } from "react";
 
